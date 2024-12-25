@@ -100,6 +100,8 @@ ALTER TABLE employee_bankbranch ADD CONSTRAINT employee_bankbranch_employee_fk F
 ALTER TABLE employee_positions ADD CONSTRAINT employee_positions_employee_fk FOREIGN KEY ( employee_id ) REFERENCES employees ( id );
 ALTER TABLE employee_positions ADD CONSTRAINT employee_positions_positions_fk FOREIGN KEY ( positions_id ) REFERENCES positions ( id );
 ALTER TABLE payment_cards ADD CONSTRAINT paymentcard_account_fk FOREIGN KEY ( account_id ) REFERENCES accounts ( id );
-ALTER TABLE transactions ADD CONSTRAINT transaction_account_fk FOREIGN KEY ( account_id ) REFERENCES accounts ( id );
 
 ALTER TABLE transactions ADD transaction_date DATE NOT NULL;
+
+ALTER TABLE transactions ADD payment_card_id INTEGER NOT NULL;
+ALTER TABLE transactions ADD CONSTRAINT transaction_payment_card_fk FOREIGN KEY ( payment_card_id ) REFERENCES payment_cards ( id );
