@@ -85,7 +85,7 @@ CREATE TABLE transactions (
     id              INTEGER NOT NULL,
     amount          INTEGER,
     transaction_type VARCHAR2(100 CHAR),
-    account_id       INTEGER NOT NULL
+    payment_card_id       INTEGER NOT NULL
 );
 
 ALTER TABLE transactions ADD CONSTRAINT transaction_pk PRIMARY KEY ( id );
