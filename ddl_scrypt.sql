@@ -105,3 +105,12 @@ ALTER TABLE transactions ADD transaction_date DATE NOT NULL;
 
 ALTER TABLE transactions ADD payment_card_id INTEGER NOT NULL;
 ALTER TABLE transactions ADD CONSTRAINT transaction_payment_card_fk FOREIGN KEY ( payment_card_id ) REFERENCES payment_cards ( id );
+
+ALTER TABLE addresses DROP CONSTRAINT address_bankbranch_fk;
+
+ALTER TABLE addresses DROP COLUMN bank_branch_id;
+
+ALTER TABLE bank_branches ADD address_id INTEGER;
+
+ALTER TABLE bank_branches ADD CONSTRAINT bankbranch_address_fk
+FOREIGN KEY (address_id) REFERENCES addresses (id);

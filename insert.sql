@@ -1,13 +1,14 @@
-INSERT INTO bank_branches VALUES (101, 'First Branch', '123-456-7890');
-INSERT INTO bank_branches VALUES (102, 'Second Branch', '234-567-8901');
-INSERT INTO bank_branches VALUES (103, 'Third Branch', '345-678-9012');
+
+
+INSERT INTO addresses VALUES (101, 'Wall Street', 'New York', 'USA');
+INSERT INTO addresses VALUES (102, 'Karl-marx-allee', 'Berlin', 'Germany');
+INSERT INTO addresses VALUES (103, 'Aleje Jerozolimskie', 'Warsaw', 'Poland');
 
 commit;
 
-
-INSERT INTO addresses VALUES (101, 'Wall Street', 'New York', 'USA', 101);
-INSERT INTO addresses VALUES (102, 'Karl-marx-allee', 'Berlin', 'Germany', 102);
-INSERT INTO addresses VALUES (103, 'Aleje Jerozolimskie', 'Warsaw', 'Poland', 103);
+INSERT INTO bank_branches VALUES (101, 'First Branch', '123-456-7890', 101);
+INSERT INTO bank_branches VALUES (102, 'Second Branch', '234-567-8901', 102);
+INSERT INTO bank_branches VALUES (103, 'Third Branch', '345-678-9012', 103);
 
 commit;
 
