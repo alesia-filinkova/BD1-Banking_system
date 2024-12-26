@@ -13,7 +13,7 @@ CREATE TABLE addresses (
     street        VARCHAR2(100 CHAR) NOT NULL,
     city          VARCHAR2(100 CHAR) NOT NULL,
     country       VARCHAR2(100 CHAR) NOT NULL,
-    bank_branch_id INTEGER NOT NULL
+    bank_branch_id INTEGER
 );
 
 ALTER TABLE addresses ADD CONSTRAINT address_pk PRIMARY KEY ( id );

@@ -4,7 +4,8 @@ CREATE OR REPLACE TRIGGER update_account_balance
 AFTER INSERT ON transactions
 FOR EACH ROW
 DECLARE
-v_balance_change INTEGER;
+    v_balance_change INTEGER;
+    v_account_id INTEGER;
 BEGIN
 
         CASE :NEW.transaction_type
@@ -30,10 +31,13 @@ BEGIN
                     RAISE_APPLICATION_ERROR(-20001, 'Unsupported transaction type');
         END CASE;
 
+        SELECT account_id INTO v_account_id
+        FROM payment_cards
+        WHERE id = :NEW.payment_card_id;
 
         UPDATE accounts
         SET balance = balance + v_balance_change
-        WHERE id = :NEW.payment_card_id;
+        WHERE  id = v_account_id;
 END;
 
 --change currency
@@ -82,6 +86,9 @@ END;
 
 
 --create new customer + create new address if it doesn't exist
+CREATE SEQUENCE addresses_seq START WITH 1 INCREMENT BY 1;
+CREATE SEQUENCE customer_seq START WITH 1 INCREMENT BY 1;
+
 CREATE OR REPLACE PROCEDURE add_new_customer (
     p_first_name IN VARCHAR2,
     p_last_name IN VARCHAR2,
@@ -95,18 +102,21 @@ CREATE OR REPLACE PROCEDURE add_new_customer (
 AS
     v_address_id INTEGER;
 BEGIN
-        SELECT id INTO v_address_id
-        FROM addresses
-        WHERE street = p_street AND city = p_city AND country = p_country
-            FETCH FIRST 1 ROWS ONLY;
+BEGIN
+    SELECT id INTO v_address_id
+    FROM addresses
+    WHERE street = p_street AND city = p_city AND country = p_country
+    FETCH FIRST 1 ROWS ONLY;
 
-        EXCEPTION WHEN NO_DATA_FOUND THEN
-                INSERT INTO addresses
-                VALUES ((select MAX(id) from addresses)+1, p_street, p_city, p_country, NULL)
-                RETURNING id INTO v_address_id;
+    EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+            INSERT INTO addresses
+            VALUES (addresses_seq.NEXTVAL, p_street, p_city, p_country, NULL)
+            RETURNING id INTO v_address_id;
+        END;
 
-        INSERT INTO customers
-        VALUES ((select MAX(id) from customers)+1, p_first_name, p_last_name, p_pesel, p_email, p_phone_number, v_address_id);
+    INSERT INTO customers
+    VALUES (customer_seq.NEXTVAL, p_first_name, p_last_name, p_pesel, p_email, p_phone_number, v_address_id);
 END;
 
 
@@ -130,8 +140,8 @@ BEGIN
     INTO v_card_id
     FROM payment_cards
     WHERE account_id = p_account_id AND expiration_date > SYSDATE
-        FETCH FIRST ROW ONLY;
-    RETURN TRUE;
+    FETCH FIRST 1 ROW ONLY;
+        RETURN TRUE;
 EXCEPTION
     WHEN NO_DATA_FOUND THEN
         RETURN FALSE;
@@ -144,21 +154,20 @@ CREATE OR REPLACE PROCEDURE remove_customer_if_negative_balance(p_customer_id IN
 AS
     v_balance INTEGER;
 BEGIN
-        SELECT balance
-        INTO v_balance
-        FROM accounts
+    SELECT balance
+    INTO v_balance
+    FROM accounts
+    WHERE customer_id = p_customer_id;
+    IF v_balance < 0 THEN
+        DELETE FROM accounts
         WHERE customer_id = p_customer_id;
-        IF v_balance < 0 THEN
-        DELETE FROM customers
-        WHERE id = p_customer_id;
-
         COMMIT;
-        END IF;
-        EXCEPTION
-            WHEN NO_DATA_FOUND THEN
-                RAISE_APPLICATION_ERROR(-20002, 'The account with ID does not exist.');
+    END IF;
+    EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+            RAISE_APPLICATION_ERROR(-20002, 'The account with ID does not exist.');
         WHEN OTHERS THEN
-                RAISE_APPLICATION_ERROR(-20003, 'An error occurred: ' || SQLERRM);
+            RAISE_APPLICATION_ERROR(-20003, 'An error occurred: ' || SQLERRM);
         ROLLBACK;
 END;
 
