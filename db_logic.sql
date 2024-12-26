@@ -111,7 +111,7 @@ BEGIN
     EXCEPTION
         WHEN NO_DATA_FOUND THEN
             INSERT INTO addresses
-            VALUES (addresses_seq.NEXTVAL, p_street, p_city, p_country, NULL)
+            VALUES (addresses_seq.NEXTVAL, p_street, p_city, p_country)
             RETURNING id INTO v_address_id;
         END;
 

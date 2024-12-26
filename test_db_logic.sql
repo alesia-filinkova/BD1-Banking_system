@@ -225,3 +225,32 @@ BEGIN
     DELETE FROM payment_cards WHERE id = 1;
     DELETE FROM accounts WHERE id = 2;
 END;
+
+
+--------------------Test add_new_customer---
+DECLARE
+    v_customer_id INTEGER;
+    v_address_id INTEGER;
+BEGIN
+
+        add_new_customer('Name', 'Last Name', '23891740997', 'name@gmail.com', '6789709032', 'Street', 'city', 'country');
+
+        BEGIN
+        SELECT id INTO v_customer_id
+        FROM customers
+        WHERE pesel = '23891740997';
+
+        SELECT address_id INTO v_address_id
+        FROM customers
+        WHERE id = v_customer_id;
+
+            IF v_customer_id IS NOT NULL AND v_address_id IS NOT NULL THEN
+                DBMS_OUTPUT.PUT_LINE('Test passed: Customer added with new address.');
+            ELSE
+                DBMS_OUTPUT.PUT_LINE('Test failed: Customer or address not found.');
+            END IF;
+        END;
+        DELETE FROM customers WHERE pesel = '23891740997';
+        DELETE FROM addresses WHERE street = 'Street' and country = 'country' and city = 'city';
+        COMMIT;
+END;
