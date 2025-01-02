@@ -1,4 +1,7 @@
 package net.javaguiedes.Banking_app.service;
 
-public interface EmployeeService {
+import org.springframework.stereotype.Service;
+
+@Service
+public class EmployeeService {
 }

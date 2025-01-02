@@ -17,6 +17,7 @@ import java.util.Set;
 public class BankBranch {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false, length = 100, unique = true)

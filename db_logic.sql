@@ -86,8 +86,8 @@ END;
 
 
 --create new customer + create new address if it doesn't exist
-CREATE SEQUENCE addresses_seq START WITH 1 INCREMENT BY 1;
-CREATE SEQUENCE customer_seq START WITH 1 INCREMENT BY 1;
+CREATE SEQUENCE addresses_seq START WITH 200 INCREMENT BY 1;
+CREATE SEQUENCE customer_seq START WITH 2000 INCREMENT BY 1;
 
 CREATE OR REPLACE PROCEDURE add_new_customer (
     p_first_name IN VARCHAR2,
@@ -132,7 +132,7 @@ END;
 
 
 CREATE OR REPLACE FUNCTION has_active_card(p_account_id IN INTEGER)
-RETURN BOOLEAN
+RETURN INTEGER
 AS
     v_card_id NUMBER;
 BEGIN
@@ -141,15 +141,15 @@ BEGIN
     FROM payment_cards
     WHERE account_id = p_account_id AND expiration_date > SYSDATE
     FETCH FIRST 1 ROW ONLY;
-        RETURN TRUE;
+        RETURN 1;
 EXCEPTION
     WHEN NO_DATA_FOUND THEN
-        RETURN FALSE;
+        RETURN 0;
 END;
 
 
 
---remove customer with negative balance 
+--remove customer with negative balance
 CREATE OR REPLACE PROCEDURE remove_customer_if_negative_balance(p_customer_id IN INTEGER)
 AS
     v_balance INTEGER;
