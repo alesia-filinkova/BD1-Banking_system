@@ -64,6 +64,40 @@
         </div>
     </div>
 </div>
+<br /><br /><br />
+<div class="container">
+    <div class="row col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="text-center">Get info about customer</h2>
+            </div>
+            <div class="card-body">
+                <form
+                        method="post"
+                        role="form"
+                        th:action="@{/getInfo}"
+                        th:variable="${customerId}"
+                >
+                    <div class="form-group mb-3">
+                        <label class="form-label">Customer Id</label>
+                        <input
+                                class="form-control"
+                                id="customerId"
+                                name="customerId"
+                                placeholder="Enter customerId"
+                                th:variable="*{customerId}"
+                                type="number"
+                        />
+                    </div>
+
+                    <div class="form-group">
+                        <button class="btn btn-primary" type="submit">Get</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 </html></title>
 </head>

@@ -64,6 +64,8 @@ public class MainController {
     public String employeePage(Model model) {
         Long accountId = 0L;
         model.addAttribute("accountId", accountId);
+        Long customerId = 0L;
+        model.addAttribute("customerId", customerId);
         return "employee";
     }
 
@@ -152,10 +154,12 @@ public class MainController {
     }
 
     ///////
-    @GetMapping("get-info/{id}")
-    public ResponseEntity<List<String>> getCustomerInfoById(
-            @PathVariable Long id){
-        return ResponseEntity.ok().body(customerService.getCustomerInfoById(id));
+    @PostMapping("/getInfo")
+    public String getCustomerInfoById(@Valid @ModelAttribute("customerId") Long id,
+                                                            Model model){
+        List<String> info = customerService.getCustomerInfoById(id);
+        model.addAttribute("info", info);
+        return "/getInfo";
     }
 
     @DeleteMapping("/remove-if-negative-balance/{id}")
