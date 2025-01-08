@@ -40,4 +40,6 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
     void removeCustomerIfNegativeBalance(
             @Param("p_customer_id") Long customerId);
 
+    Customer findByEmail(String email);
+
 }

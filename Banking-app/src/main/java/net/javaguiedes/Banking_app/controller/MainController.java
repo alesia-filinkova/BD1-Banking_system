@@ -1,13 +1,16 @@
 package net.javaguiedes.Banking_app.controller;
 
 
-
+import jakarta.validation.Valid;
 import net.javaguiedes.Banking_app.entity.Account;
+import net.javaguiedes.Banking_app.entity.Address;
 import net.javaguiedes.Banking_app.entity.Customer;
 import net.javaguiedes.Banking_app.entity.Transaction;
 import net.javaguiedes.Banking_app.service.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -54,20 +57,36 @@ public class MainController {
         return ResponseEntity.ok().body(transactionService.createTransaction(paymentCardId, amount, transactionType));
     }
 
-    @PostMapping("/add-customer")
-    public ResponseEntity<Customer> addCustomer(
-            @RequestParam String firstName,
-            @RequestParam String lastName,
-            @RequestParam String pesel,
-            @RequestParam String email,
-            @RequestParam String phoneNumber,
-            @RequestParam String street,
-            @RequestParam String city,
-            @RequestParam String country
-    ){
-        return ResponseEntity.ok().body(customerService.addCustomer(firstName, lastName, pesel,
-                email, phoneNumber, street, city, country));
+    @GetMapping("/addCustomer")
+    public String showRegistrationForm(Model model) {
+        Customer customer = new Customer();
+        Address address = new Address();
+        customer.setAddress(address);
+        model.addAttribute("customer", customer);
+        return "addCustomer";
     }
+
+    @PostMapping("/addCustomer/save")
+    public String registration(@Valid @ModelAttribute("customer") Customer customer,
+                               BindingResult result,
+                               Model model) {
+        Customer existingCustomer = customerService.findCustomerByEmail(customer.getEmail());
+
+        if (existingCustomer != null && existingCustomer.getEmail() != null && !existingCustomer.getEmail().isEmpty()) {
+            result.rejectValue("email", null,
+                    "There is already an account registered with the same email");
+        }
+
+        if (result.hasErrors()) {
+            model.addAttribute("customer", customer);
+            return "/addCustomer";
+        }
+
+        customerService.addCustomer(customer.getFirstName(), customer.getLastName(), customer.getPesel(), customer.getEmail(),
+                customer.getPhoneNumber(), customer.getAddress().getStreet(), customer.getAddress().getCity(), customer.getAddress().getCountry());
+        return "redirect:/addCustomer?success";
+    }
+
 
     @GetMapping("/avg-salary/{branchId}")
     public ResponseEntity<Double> getBranchAvgSalary(
@@ -119,4 +138,6 @@ public class MainController {
     ){
         return ResponseEntity.ok().body(accountService.createAccount(accountNumber, balance, currency, customerId));
     }
+
+
 }
