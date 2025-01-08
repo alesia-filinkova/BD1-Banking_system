@@ -39,6 +39,7 @@ BEGIN
         SET balance = balance + v_balance_change
         WHERE  id = v_account_id;
 END;
+/
 
 --change currency
 CREATE or REPLACE PROCEDURE change_account_currency(
@@ -67,6 +68,7 @@ EXCEPTION
     WHEN OTHERS THEN
         RAISE_APPLICATION_ERROR(-20003, 'An error occurred: ' || SQLERRM);
 END;
+/
 
 
 --return average salary per bank branch
@@ -83,6 +85,7 @@ BEGIN
 
 RETURN NVL(v_avg_salary, 0);
 END;
+/
 
 
 --create new customer + create new address if it doesn't exist
@@ -118,6 +121,7 @@ BEGIN
     INSERT INTO customers
     VALUES (customer_seq.NEXTVAL, p_first_name, p_last_name, p_pesel, p_email, p_phone_number, v_address_id);
 END;
+/
 
 
 --set default value if balance is null
@@ -129,6 +133,7 @@ BEGIN
         :New.balance := 0;
     END IF;
 END;
+/
 
 
 CREATE OR REPLACE FUNCTION has_active_card(p_account_id IN INTEGER)
@@ -146,6 +151,7 @@ EXCEPTION
     WHEN NO_DATA_FOUND THEN
         RETURN 0;
 END;
+/
 
 
 
@@ -170,4 +176,195 @@ BEGIN
             RAISE_APPLICATION_ERROR(-20003, 'An error occurred: ' || SQLERRM);
         ROLLBACK;
 END;
+/
 
+
+--Automatyczne ustawianie daty utworzenia transakcji
+CREATE OR REPLACE TRIGGER set_transaction_date
+BEFORE INSERT ON transactions
+FOR EACH ROW
+BEGIN 
+    :NEW.transaction_date := SYSDATE;
+END;
+/
+
+--INSERT INTO transactions (id, amount, transaction_type, payment_card_id) VALUES (62, 100, 'Payment', 3002);
+--SELECT * FROM transactions WHERE id = 62;
+
+
+--Usunięcie karty konsumenta (Przy usunięciu karty, wszystkie związane z nią transakcje są również usuwane.)
+CREATE OR REPLACE TRIGGER delete_related_transactions
+BEFORE DELETE ON payment_cards
+FOR EACH ROW
+BEGIN
+    DELETE FROM transactions WHERE payment_card_id = :OLD.id;
+END;
+/
+
+--INSERT INTO payment_cards VALUES (3026, 2600333344445555, TO_DATE('2028-08-31', 'YYYY-MM-DD'), 206, 1001);
+--INSERT INTO transactions (id, amount, transaction_type, payment_card_id) VALUES (3063, 600, 'Deposit', 3026);
+--DELETE FROM payment_cards WHERE id = 3026;
+
+--Usunięcie konta konsumenta (Przy usunięciu konta, wszystkie związane z nim karty są również usuwane.)
+CREATE OR REPLACE TRIGGER delete_related_cards
+BEFORE DELETE ON accounts
+FOR EACH ROW
+BEGIN
+    DELETE FROM payment_cards WHERE account_id = :OLD.id;
+END;
+/
+
+
+--Obsługa zamówienia nowej karty płatniczej(Procedura generuje nową kartę płatniczą dla konta klienta)
+CREATE OR REPLACE PROCEDURE new_payment_card(p_account_id IN NUMBER)
+AS 
+    v_card_id NUMBER;
+    v_card_number VARCHAR2(50);
+    v_expiration_date DATE;
+    v_cvv VARCHAR2(3);
+BEGIN
+    SELECT MAX(id) + 1 INTO v_card_id
+    FROM payment_cards;
+    v_expiration_date := ADD_MONTHS(SYSDATE, 60);
+    v_card_number := LPAD(TRUNC(DBMS_RANDOM.VALUE(1, 9999999999999999)), 16, '0');
+    v_cvv := LPAD(TRUNC(DBMS_RANDOM.VALUE(1, 999)), 3, '0');
+    INSERT INTO payment_cards (id, card_number, expiration_date, cvv, account_id) 
+    VALUES(
+        v_card_id,
+        v_card_number,
+        v_expiration_date,
+        v_cvv,
+        p_account_id  
+    );
+END;
+/
+
+/* BEGIN
+    new_payment_card(1002);
+END;
+/ */
+
+
+--Dodanie pracownika 
+-- + Automatyczne przypisanie pracownika do oddziału z najmniejszą liczbą pracowników
+-- +przypisanie do posycji z najmniejszą liczbą pracowników
+-- + nadanie najmniejszego zakładu dla tej pozycji
+CREATE OR REPLACE PROCEDURE assign_employee 
+(
+    p_first_name IN VARCHAR2,
+    p_last_name IN VARCHAR2
+)
+AS 
+    v_employee_id NUMBER;
+    v_branch_id NUMBER;
+    v_position_id NUMBER;
+    v_salary NUMBER;
+BEGIN
+    SELECT bankbranch_id
+    INTO v_branch_id
+    FROM(
+        SELECT bankbranch_id, COUNT(*) AS employee_count
+        FROM employee_bankbranch
+        GROUP BY bankbranch_id
+        ORDER BY employee_count ASC
+    ) WHERE ROWNUM = 1;
+    
+    SELECT positions_id
+    INTO v_position_id
+    FROM (
+        SELECT ep.positions_id, COUNT(ep.employee_id) AS employee_count
+        FROM employee_positions ep
+        INNER JOIN employee_bankbranch eb ON ep.employee_id = eb.employee_id
+        WHERE eb.bankbranch_id = v_branch_id
+        GROUP BY ep.positions_id
+        ORDER BY employee_count ASC
+    ) WHERE ROWNUM = 1;
+    
+    SELECT MIN(salary)
+    INTO v_salary
+    FROM employees e
+    INNER JOIN employee_positions ep ON e.id = ep.employee_id
+    WHERE ep.positions_id = v_position_id;
+    
+    SELECT MAX(id) + 1 INTO v_employee_id FROM employees;
+    
+    INSERT INTO employees (id, first_name, last_name, salary)
+    VALUES (
+        v_employee_id,
+        p_first_name,
+        p_last_name,
+        v_salary
+    );
+    
+    INSERT INTO employee_bankbranch (employee_id, bankbranch_id)
+    VALUES (v_employee_id, v_branch_id);
+    
+    INSERT INTO employee_positions (employee_id, positions_id)
+    VALUES (v_employee_id, v_position_id);
+END;
+/
+
+/*BEGIN
+    assign_employee('Tomas', 'Smit');
+END;
+/ */
+
+
+--Sprawdzanie historii transakcji karty
+CREATE OR REPLACE FUNCTION get_transaction_history (p_payment_card_id IN NUMBER)
+RETURN SYS_REFCURSOR IS v_history SYS_REFCURSOR;
+BEGIN
+    OPEN v_history FOR
+    SELECT id, amount, transaction_type, transaction_date
+    FROM transactions
+    WHERE payment_card_id = p_payment_card_id
+    ORDER BY transaction_date DESC;
+    RETURN v_history;
+END;
+/
+
+
+/*SET SERVEROUTPUT ON;
+DECLARE
+    v_history SYS_REFCURSOR;
+    v_id NUMBER;
+    v_amount NUMBER;
+    v_transaction_type VARCHAR2(50);
+    v_transaction_date DATE;
+BEGIN
+    -- Вызов функции
+    v_history := get_transaction_history(3001);
+
+    -- Обработка результата
+    LOOP
+        FETCH v_history INTO v_id, v_amount, v_transaction_type, v_transaction_date;
+        EXIT WHEN v_history%NOTFOUND;
+        
+        -- Вывод результата
+        DBMS_OUTPUT.PUT_LINE('ID: ' || v_id || ', Amount: ' || v_amount || 
+                             ', Type: ' || v_transaction_type || 
+                             ', Date: ' || TO_CHAR(v_transaction_date, 'YYYY-MM-DD'));
+    END LOOP;
+
+    CLOSE v_history;
+END;
+/ */
+
+
+--Obliczanie liczby transakcji na koncie
+CREATE OR REPLACE FUNCTION get_transaction_count (p_account_id IN NUMBER)
+RETURN NUMBER IS
+    v_transaction_count NUMBER;
+BEGIN
+    SELECT COUNT(*)
+    INTO v_transaction_count
+    FROM transactions t
+    JOIN payment_cards pc
+    ON t.payment_card_id = pc.id
+    WHERE pc.account_id = p_account_id;
+
+    RETURN v_transaction_count;
+END;
+/
+
+--SELECT get_transaction_count(1003) AS transaction_count FROM dual;
