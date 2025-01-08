@@ -2,6 +2,8 @@ package net.javaguiedes.Banking_app.controller;
 
 
 import jakarta.validation.Valid;
+import net.javaguiedes.Banking_app.dto.Currency;
+import net.javaguiedes.Banking_app.dto.TransactionDto;
 import net.javaguiedes.Banking_app.entity.Account;
 import net.javaguiedes.Banking_app.entity.Address;
 import net.javaguiedes.Banking_app.entity.Customer;
@@ -12,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+
 
 import java.util.List;
 
@@ -38,23 +41,45 @@ public class MainController {
     public String homePage(){
         return "home";
     }
-    @PostMapping("/{accountId}/change-currency")
-    public ResponseEntity<Account> changeCurrency(
-            @PathVariable Long accountId,
-            @RequestParam String newCurrency,
-            @RequestParam Double exchangeRate
-    ) {
 
-        Account cchangedAccount = customerService.changeCurrency(accountId, newCurrency, exchangeRate);
-        return ResponseEntity.ok().body(cchangedAccount);
+    @GetMapping("/admin")
+    public String adminPage(Model model) {
+        Long banchId = 0L;
+        model.addAttribute("branchId", banchId);
+        return "admin";
     }
 
-    @PostMapping("/transaction/{paymentCardId}")
-    public ResponseEntity<Transaction> addTransaction(
-            @PathVariable Long paymentCardId,
-            @RequestParam Integer amount,
-            @RequestParam String transactionType){
-        return ResponseEntity.ok().body(transactionService.createTransaction(paymentCardId, amount, transactionType));
+    @GetMapping("/customer")
+    public String customerPage(Model model) {
+        Currency currency = new Currency();
+        model.addAttribute("currency", currency);
+        TransactionDto transaction = new TransactionDto();
+        model.addAttribute("transactionDto", transaction);
+        return "customer";
+    }
+
+    @GetMapping("/employee")
+    public String employeePage(Model model) {
+        return "employee";
+    }
+
+    @PostMapping("/changeCurrency")
+    public String changeCurrency(
+            @Valid @ModelAttribute("customer") Currency currency, Model model) {
+        Account changedAccount = customerService.changeCurrency(currency.getAccountId(), currency.getNewCurrency(), currency.getExchangeRate());
+        model.addAttribute("changedAccount", changedAccount);
+        return "/changeCurrency";
+    }
+
+    @PostMapping("/transaction")
+    public String addTransaction(@Valid @ModelAttribute("transactionDto") TransactionDto transactionDto, Model model) {
+        System.out.println(transactionDto.getTransactionType());
+        Transaction transaction = transactionService.createTransaction(
+                transactionService.findByCardNumber(transactionDto.getPaymentCard()).getId(),
+                transactionDto.getAmount(),
+                transactionDto.getTransactionType());
+        model.addAttribute("transaction", transaction);
+        return "/transaction";
     }
 
     @GetMapping("/addCustomer")
@@ -88,12 +113,7 @@ public class MainController {
     }
 
 
-    @GetMapping("/admin")
-    public String adminPage(Model model) {
-        Long banchId = 0L;
-        model.addAttribute("branchId", banchId);
-        return "admin";
-    }
+
 
     @PostMapping("/avgSalaryResult")
     public String getBranchAvgSalary(@Valid @ModelAttribute("branchId") Long branchId, Model model){

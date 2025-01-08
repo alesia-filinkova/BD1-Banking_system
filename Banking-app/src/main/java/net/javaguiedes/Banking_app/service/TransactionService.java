@@ -41,4 +41,8 @@ public class TransactionService {
         return transactions;
     }
 
+    public PaymentCard findByCardNumber(String cardNumber) {
+        return paymentCardRepository.findByCardNumber(cardNumber);
+    }
+
 }
