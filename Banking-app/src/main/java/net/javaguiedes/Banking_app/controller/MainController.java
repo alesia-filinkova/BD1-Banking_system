@@ -55,11 +55,15 @@ public class MainController {
         model.addAttribute("currency", currency);
         TransactionDto transaction = new TransactionDto();
         model.addAttribute("transactionDto", transaction);
+        Long accountId = 0L;
+        model.addAttribute("accountId", accountId);
         return "customer";
     }
 
     @GetMapping("/employee")
     public String employeePage(Model model) {
+        Long accountId = 0L;
+        model.addAttribute("accountId", accountId);
         return "employee";
     }
 
@@ -124,17 +128,6 @@ public class MainController {
     }
 
 
-    @GetMapping("has-active-card/{accountId}")
-    public ResponseEntity<String> hasActiveCard(
-            @PathVariable Long accountId
-    ){
-        Integer value = accountService.hasActiveCard(accountId);
-        if(value ==1){
-            return ResponseEntity.ok().body("Account has active card");
-        }
-        return ResponseEntity.ok().body("Account hasn't active card");
-    }
-
     @GetMapping("/last30DaysTransactions")
     public String getTransactionsLast30Days(Model model){
         List<Transaction> transactions = transactionService.getAllTransactions();
@@ -143,6 +136,22 @@ public class MainController {
     }
 
 
+    @PostMapping("/hasActiveCard")
+    public String hasActiveCard(@Valid @ModelAttribute("accountId") Long accountId, Model model
+    ){
+        Integer value = accountService.hasActiveCard(accountId);
+        String result = "";
+        if(value == 1){
+            result = "Account has active card";
+        }
+        else {
+            result = "Account hasn't active card";
+        }
+        model.addAttribute("result", result);
+        return "/hasActiveCard";
+    }
+
+    ///////
     @GetMapping("get-info/{id}")
     public ResponseEntity<List<String>> getCustomerInfoById(
             @PathVariable Long id){
