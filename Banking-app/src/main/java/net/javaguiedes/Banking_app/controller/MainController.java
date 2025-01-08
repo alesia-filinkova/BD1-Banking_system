@@ -88,11 +88,19 @@ public class MainController {
     }
 
 
-    @GetMapping("/avg-salary/{branchId}")
-    public ResponseEntity<Double> getBranchAvgSalary(
-            @PathVariable Long branchId
-    ){
-        return ResponseEntity.ok().body(bankBranchService.getBranchAvgSalary(branchId));
+    @GetMapping("/admin")
+    public String adminPage(Model model) {
+        Long banchId = 0L;
+        model.addAttribute("branchId", banchId);
+        return "admin";
+    }
+
+    @PostMapping("/avgSalaryResult")
+    public String getBranchAvgSalary(@Valid @ModelAttribute("branchId") Long branchId, Model model){
+
+        Double avgSalary = bankBranchService.getBranchAvgSalary(branchId);
+        model.addAttribute("avgSalary", avgSalary);
+        return "/avgSalaryResult";
     }
 
 
@@ -107,9 +115,11 @@ public class MainController {
         return ResponseEntity.ok().body("Account hasn't active card");
     }
 
-    @GetMapping("last-30-days-transactions")
-    public ResponseEntity<List<Transaction>> getTransactionsLast30Days(){
-        return ResponseEntity.ok().body(transactionService.getAllTransactions());
+    @GetMapping("/last30DaysTransactions")
+    public String getTransactionsLast30Days(Model model){
+        List<Transaction> transactions = transactionService.getAllTransactions();
+        model.addAttribute("transactions", transactions);
+        return "/last30DaysTransactions";
     }
 
 
