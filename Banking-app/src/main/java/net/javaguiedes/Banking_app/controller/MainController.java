@@ -57,6 +57,8 @@ public class MainController {
         model.addAttribute("transactionDto", transaction);
         Long accountId = 0L;
         model.addAttribute("accountId", accountId);
+        Long customerId = 0L;
+        model.addAttribute("customerId", customerId);
         return "customer";
     }
 
@@ -66,6 +68,10 @@ public class MainController {
         model.addAttribute("accountId", accountId);
         Long customerId = 0L;
         model.addAttribute("customerId", customerId);
+        Long customerIdWithNegativeBalance = 0L;
+        model.addAttribute("customerIdWithNegativeBalance", customerIdWithNegativeBalance);
+        Account account = new Account();
+        model.addAttribute("account", account);
         return "employee";
     }
 
@@ -153,7 +159,7 @@ public class MainController {
         return "/hasActiveCard";
     }
 
-    ///////
+
     @PostMapping("/getInfo")
     public String getCustomerInfoById(@Valid @ModelAttribute("customerId") Long id,
                                                             Model model){
@@ -162,24 +168,36 @@ public class MainController {
         return "/getInfo";
     }
 
-    @DeleteMapping("/remove-if-negative-balance/{id}")
-    public ResponseEntity<String> removeCustomerIfNegativeBalance(@PathVariable("id") Long customerId) {
-        return ResponseEntity.ok().body(customerService.removeCustomerIfNegativeBalance(customerId));
+
+    @PostMapping("/removeIfNegativeBalance")
+    public String removeCustomerIfNegativeBalance(
+            @Valid @ModelAttribute("customerIdWithNegativeBalance") Long customerId, Model model) {
+        String result = customerService.removeCustomerIfNegativeBalance(customerId);
+        model.addAttribute("result", result);
+        return "/removeIfNegativeBalance";
     }
 
-    @GetMapping("/customer-balance/{customerId}")
-    public ResponseEntity<Integer> getBalance(@PathVariable Long customerId){
-        return ResponseEntity.ok().body(accountService.getBalance(customerId));
+
+    @PostMapping("/customerBalance")
+    public String getBalance(
+            @Valid @ModelAttribute("customerId") Long customerId,
+            Model model){
+        System.out.println(customerId);
+        Integer result = accountService.getBalance(customerId);
+        model.addAttribute("result", result);
+        return "/customerBalance";
     }
 
-    @PostMapping("/create-account/{customerId}")
-    public ResponseEntity<Account> createAccount(
-            @RequestParam String accountNumber,
-            @RequestParam Integer balance,
-            @RequestParam String currency,
-            @PathVariable Long customerId
+    ///////
+    @PostMapping("/createAccount")
+    public String createAccount(
+            @Valid @ModelAttribute("account") Account account,
+            Model model
     ){
-        return ResponseEntity.ok().body(accountService.createAccount(accountNumber, balance, currency, customerId));
+        Account createdAccount = accountService.createAccount(account.getAccountNumber(),
+                account.getBalance(), account.getCurrency(), account.getCustomer().getId());
+        model.addAttribute("createdAccount", createdAccount);
+        return "/createAccount";
     }
 
 

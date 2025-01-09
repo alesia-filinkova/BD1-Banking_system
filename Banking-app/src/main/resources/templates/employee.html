@@ -98,6 +98,110 @@
         </div>
     </div>
 </div>
+<br /><br /><br />
+<div class="container">
+    <div class="row col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="text-center">Delete customer with negative balance</h2>
+            </div>
+            <div class="card-body">
+                <form
+                        method="post"
+                        role="form"
+                        th:action="@{/removeIfNegativeBalance}"
+                        th:variable="${customerIdWithNegativeBalance}"
+                >
+                    <div class="form-group mb-3">
+                        <label class="form-label">Customer Id</label>
+                        <input
+                                class="form-control"
+                                id="customerIdWithNegativeBalance"
+                                name="customerIdWithNegativeBalance"
+                                placeholder="Enter customerId"
+                                th:variable="*{customerIdWithNegativeBalance}"
+                                type="number"
+                        />
+                    </div>
+
+                    <div class="form-group">
+                        <button class="btn btn-primary" type="submit">Delete</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<br /><br /><br />
+<div class="container">
+    <div class="row col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="text-center">Create account for customer</h2>
+            </div>
+            <div class="card-body">
+                <form
+                        method="post"
+                        role="form"
+                        th:action="@{/createAccount}"
+                        th:object="${account}"
+                >
+                    <div class="form-group mb-3">
+                        <label class="form-label">Account number</label>
+                        <input
+                                class="form-control"
+                                id="accountNumber"
+                                name="accountNumber"
+                                placeholder="Enter accountNumber"
+                                th:field="*{accountNumber}"
+                                type="text"
+                        />
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label class="form-label">Balance</label>
+                        <input
+                                class="form-control"
+                                id="balance"
+                                name="balance"
+                                placeholder="Enter balance"
+                                th:field="*{balance}"
+                                type="number"
+                        />
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label class="form-label">Currency</label>
+                        <input
+                                class="form-control"
+                                id="currency"
+                                name="currency"
+                                placeholder="Enter currency"
+                                th:field="*{currency}"
+                                type="text"
+                        />
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label class="form-label">Customer id</label>
+                        <input
+                                class="form-control"
+                                id="id"
+                                name="customer"
+                                placeholder="Enter customer firstName"
+                                th:field="*{customer.id}"
+                                type="number"
+                        />
+                    </div>
+
+                    <div class="form-group">
+                        <button class="btn btn-primary" type="submit">Create</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 </html></title>
 </head>
