@@ -55,6 +55,7 @@
         <td th:text = "${transaction.getTransactionType()}"></td>
         <td th:text = "${transaction.getPaymentCard().getAccount().getBalance()}"></td>
         </tbody>
+        <span><a th:href="@{/customer}">Close</a></span>
     </table>
 </div>
 </body>

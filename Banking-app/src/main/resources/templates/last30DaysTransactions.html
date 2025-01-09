@@ -34,7 +34,7 @@
 </nav>
 <div class="container">
   <div class="row col-md-10">
-    <h2>List of Registered Users</h2>
+    <h2>List of this month transactions</h2>
   </div>
   <table class="table table-bordered table-hover">
     <thead class="table-dark">
@@ -53,6 +53,7 @@
       <td th:text = "${transaction.paymentCard.cardNumber}"></td>
     </tr>
     </tbody>
+    <span><a th:href="@{/employee}">Close</a></span>
   </table>
 </div>
 </body>

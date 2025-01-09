@@ -9,7 +9,6 @@ import net.javaguiedes.Banking_app.entity.Address;
 import net.javaguiedes.Banking_app.entity.Customer;
 import net.javaguiedes.Banking_app.entity.Transaction;
 import net.javaguiedes.Banking_app.service.*;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -136,7 +135,7 @@ public class MainController {
     }
 
 
-    @GetMapping("/last30DaysTransactions")
+    @PostMapping("/last30DaysTransactions")
     public String getTransactionsLast30Days(Model model){
         List<Transaction> transactions = transactionService.getAllTransactions();
         model.addAttribute("transactions", transactions);
@@ -174,7 +173,7 @@ public class MainController {
             @Valid @ModelAttribute("customerIdWithNegativeBalance") Long customerId, Model model) {
         String result = customerService.removeCustomerIfNegativeBalance(customerId);
         model.addAttribute("result", result);
-        return "/removeIfNegativeBalance";
+        return "removeIfNegativeBalance";
     }
 
 
@@ -188,7 +187,6 @@ public class MainController {
         return "/customerBalance";
     }
 
-    ///////
     @PostMapping("/createAccount")
     public String createAccount(
             @Valid @ModelAttribute("account") Account account,
