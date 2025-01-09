@@ -58,6 +58,7 @@
                     placeholder="Enter first name"
                     th:field="*{firstName}"
                     type="text"
+                    required
             />
             <p th:errors = "*{firstName}" class="text-danger"
                th:if="${#fields.hasErrors('firstName')}"></p>
@@ -71,6 +72,7 @@
                     placeholder="Enter last name"
                     th:field="*{lastName}"
                     type="text"
+                    required
             />
             <p th:errors = "*{lastName}" class="text-danger"
                th:if="${#fields.hasErrors('lastName')}"></p>
@@ -84,6 +86,7 @@
                     placeholder="Enter pesel"
                     th:field="*{pesel}"
                     type="text"
+                    required
             />
             <p th:errors = "*{pesel}" class="text-danger"
                th:if="${#fields.hasErrors('pesel')}"></p>
@@ -97,6 +100,7 @@
                     placeholder="Enter email address"
                     th:field="*{email}"
                     type="email"
+                    required
             />
             <p th:errors = "*{email}" class="text-danger"
                th:if="${#fields.hasErrors('email')}"></p>
@@ -110,6 +114,7 @@
                     placeholder="Enter phone number"
                     th:field="*{phoneNumber}"
                     type="text"
+                    required
             />
             <p th:errors = "*{phoneNumber}" class="text-danger"
                th:if="${#fields.hasErrors('phoneNumber')}"></p>
@@ -124,6 +129,7 @@
                     placeholder="Enter street"
                     th:field="*{address.street}"
                     type="text"
+                    required
             />
             <p th:errors="*{address.street}" class="text-danger"
                th:if="${#fields.hasErrors('address.street')}"></p>
@@ -137,6 +143,7 @@
                     placeholder="Enter city"
                     th:field="*{address.city}"
                     type="text"
+                    required
             />
             <p th:errors="*{address.city}" class="text-danger"
                th:if="${#fields.hasErrors('address.city')}"></p>
@@ -150,6 +157,7 @@
                     placeholder="Enter country"
                     th:field="*{address.country}"
                     type="text"
+                    required
             />
             <p th:errors="*{address.country}" class="text-danger"
                th:if="${#fields.hasErrors('address.country')}"></p>

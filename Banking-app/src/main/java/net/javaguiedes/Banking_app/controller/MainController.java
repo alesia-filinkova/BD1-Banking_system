@@ -15,6 +15,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -36,9 +37,9 @@ public class MainController {
         this.accountService = accountService;
     }
 
-    @GetMapping("/home")
+    @GetMapping("/main")
     public String homePage(){
-        return "home";
+        return "main";
     }
 
     @GetMapping("/admin")
@@ -65,6 +66,7 @@ public class MainController {
     public String employeePage(Model model) {
         Long accountId = 0L;
         model.addAttribute("accountId", accountId);
+
         Long customerId = 0L;
         model.addAttribute("customerId", customerId);
         Long customerIdWithNegativeBalance = 0L;
@@ -77,19 +79,30 @@ public class MainController {
     @PostMapping("/changeCurrency")
     public String changeCurrency(
             @Valid @ModelAttribute("customer") Currency currency, Model model) {
-        Account changedAccount = customerService.changeCurrency(currency.getAccountId(), currency.getNewCurrency(), currency.getExchangeRate());
-        model.addAttribute("changedAccount", changedAccount);
+        Account changedAccount = new Account();
+        try {
+            changedAccount = customerService.changeCurrency(currency.getAccountId(), currency.getNewCurrency(), currency.getExchangeRate());
+            model.addAttribute("changedAccount", changedAccount);
+        }
+        catch (Exception e) {
+            model.addAttribute("changedAccount", changedAccount);
+        }
         return "/changeCurrency";
     }
 
     @PostMapping("/transaction")
     public String addTransaction(@Valid @ModelAttribute("transactionDto") TransactionDto transactionDto, Model model) {
-        System.out.println(transactionDto.getTransactionType());
-        Transaction transaction = transactionService.createTransaction(
-                transactionService.findByCardNumber(transactionDto.getPaymentCard()).getId(),
-                transactionDto.getAmount(),
-                transactionDto.getTransactionType());
-        model.addAttribute("transaction", transaction);
+        Transaction transaction = new Transaction();
+        try {
+            transaction = transactionService.createTransaction(
+                    transactionService.findByCardNumber(transactionDto.getPaymentCard()).getId(),
+                    transactionDto.getAmount(),
+                    transactionDto.getTransactionType());
+            model.addAttribute("transaction", transaction);
+        }
+        catch (Exception e) {
+            model.addAttribute("transaction", transaction);
+        }
         return "/transaction";
     }
 
@@ -123,9 +136,6 @@ public class MainController {
         return "redirect:/addCustomer?success";
     }
 
-
-
-
     @PostMapping("/avgSalaryResult")
     public String getBranchAvgSalary(@Valid @ModelAttribute("branchId") Long branchId, Model model){
 
@@ -146,13 +156,19 @@ public class MainController {
     @PostMapping("/hasActiveCard")
     public String hasActiveCard(@Valid @ModelAttribute("accountId") Long accountId, Model model
     ){
-        Integer value = accountService.hasActiveCard(accountId);
+        System.out.println(accountId);
         String result = "";
-        if(value == 1){
-            result = "Account has active card";
+        if(accountId==null){
+            result = "Account id not provided";
         }
         else {
-            result = "Account hasn't active card";
+            Integer value = accountService.hasActiveCard(accountId);
+
+            if (value == 1) {
+                result = "Account has active card";
+            } else {
+                result = "Account hasn't active card";
+            }
         }
         model.addAttribute("result", result);
         return "/hasActiveCard";
@@ -162,7 +178,13 @@ public class MainController {
     @PostMapping("/getInfo")
     public String getCustomerInfoById(@Valid @ModelAttribute("customerId") Long id,
                                                             Model model){
-        List<String> info = customerService.getCustomerInfoById(id);
+        List<String> info = new ArrayList<>();
+        try{
+            info = customerService.getCustomerInfoById(id);
+        }
+        catch (Exception e){
+            info.add("Customer not found");
+        }
         model.addAttribute("info", info);
         return "/getInfo";
     }
@@ -171,7 +193,13 @@ public class MainController {
     @PostMapping("/removeIfNegativeBalance")
     public String removeCustomerIfNegativeBalance(
             @Valid @ModelAttribute("customerIdWithNegativeBalance") Long customerId, Model model) {
-        String result = customerService.removeCustomerIfNegativeBalance(customerId);
+        String result = "";
+        try{
+            result = customerService.removeCustomerIfNegativeBalance(customerId);
+        }
+        catch(Exception e){
+            result = "Customer not found";
+        }
         model.addAttribute("result", result);
         return "removeIfNegativeBalance";
     }

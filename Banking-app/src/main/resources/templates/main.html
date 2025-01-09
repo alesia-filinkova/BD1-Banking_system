@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en"
-      xmlns:th="http://www.thymeleaf.org">
+      xmlns:th="http://www.thymeleaf.org"
+>
 <head>
     <meta charset="UTF-8">
     <title><!DOCTYPE html>
@@ -24,26 +25,14 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" th:href="@{/main}">Main</a>
-                </li>
             </ul>
         </div>
     </div>
 </nav>
-<br /><br /><br />
 <div class="container">
-    <div class="row col-md-8 offset-md-2">
-        <div class="card">
-            <div class="card-header">
-                <h2 class="text-center">Check if customer has active card</h2>
-            </div>
-            <div class="card-body">
-                <thead class="table-dark"></thead>
-                <td th:text = "${result}"></td>
-                <span><a th:href="@{/employee}">Close</a></span>
-        </div>
-    </div>
+        <span><a th:href="@{/employee}">Employee</a></span>
+        <span><a th:href="@{/customer}">Customer</a></span>
+        <span><a th:href="@{/admin}">Admin</a></span>
 </div>
 </body>
 </html>

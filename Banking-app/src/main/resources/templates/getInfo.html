@@ -41,38 +41,10 @@
 
     </thead>
     <tbody>
-      <tr>
-        <td th:text = "Name"></td>
-        <td th:text = "${info.get(0)}"></td>
-      </tr>
-      <tr>
-        <td th:text = "Surname"></td>
-        <td th:text = "${info.get(1)}"></td>
-      </tr>
-      <tr>
-        <td th:text = "Pesel"></td>
-        <td th:text = "${info.get(2)}"></td>
-      </tr>
-      <tr>
-        <td th:text = "Email"></td>
-        <td th:text = "${info.get(3)}"></td>
-      </tr>
-      <tr>
-        <td th:text = "PhoneNumber"></td>
-        <td th:text = "${info.get(4)}"></td>
-      </tr>
-      <tr>
-        <td th:text = "AddressStreet"></td>
-        <td th:text = "${info.get(5)}"></td>
-      </tr>
-      <tr>
-        <td th:text = "AddressCity"></td>
-        <td th:text = "${info.get(6)}"></td>
-      </tr>
-      <tr>
-        <td th:text = "AddressCountry"></td>
-        <td th:text = "${info.get(7)}"></td>
-      </tr>
+    <tr th:each = "value : ${info}">
+      <td th:text = "${value}"></td>
+    </tr>
+
     </tbody>
     <span><a th:href="@{/employee}">Close</a></span>
   </table>

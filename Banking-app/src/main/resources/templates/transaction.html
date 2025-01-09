@@ -40,7 +40,8 @@
     <div class="row col-md-10">
         <h2>Transaction</h2>
     </div>
-    <table class="table table-bordered table-hover">
+
+    <table class="table table-bordered table-hover" th:if="${transaction.getAmount() != null}">
         <thead class="table-dark">
         <tr>
             <th>Transfer Amount</th>
@@ -50,12 +51,20 @@
         </tr>
         </thead>
         <tbody>
-        <td th:text = "${transaction.getAmount()}"></td>
-        <td th:text = "${transaction.getPaymentCard().getCardNumber()}"></td>
-        <td th:text = "${transaction.getTransactionType()}"></td>
-        <td th:text = "${transaction.getPaymentCard().getAccount().getBalance()}"></td>
+        <tr>
+            <td th:text="${transaction.getAmount()}"></td>
+            <td th:text="${transaction.getPaymentCard().getCardNumber()}"></td>
+            <td th:text="${transaction.getTransactionType()}"></td>
+            <td th:text="${transaction.getPaymentCard().getAccount().getBalance()}"></td>
+        </tr>
         </tbody>
         <span><a th:href="@{/customer}">Close</a></span>
     </table>
+
+    <div th:if="${transaction.getAmount() == null}">
+        <p>Transfer failed</p>
+        <span><a th:href="@{/customer}">Close</a></span>
+    </div>
 </div>
+
 </body>

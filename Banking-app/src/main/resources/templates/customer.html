@@ -53,6 +53,7 @@
                                 placeholder="Enter accountID"
                                 th:variable="*{accountId}"
                                 type="number"
+                                required
                         />
                     </div>
                     <div class="form-group mb-3">
@@ -64,6 +65,7 @@
                                 placeholder="Enter new currency"
                                 th:variable="*{newCurrency}"
                                 type="text"
+                                required
                         />
                     </div>
 
@@ -76,6 +78,8 @@
                                 placeholder="Enter exchange rate"
                                 th:variable="*{exchangeRate}"
                                 type="text"
+                                pattern="^-?\d+(\.\d+)?$"
+                                required
                         />
                     </div>
 
@@ -110,6 +114,7 @@
                                 placeholder="Enter paymentCard"
                                 th:variable="*{paymentCard}"
                                 type="text"
+                                required
                         />
                     </div>
                     <div class="form-group mb-3">
@@ -121,6 +126,7 @@
                                 placeholder="Enter amount"
                                 th:variable="*{amount}"
                                 type="text"
+                                required
                         />
                     </div>
 
@@ -176,6 +182,7 @@
                                 placeholder="Enter customerId"
                                 th:variable="*{customerId}"
                                 type="number"
+                                required
                         />
                     </div>
 

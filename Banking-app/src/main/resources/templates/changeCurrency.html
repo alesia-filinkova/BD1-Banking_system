@@ -40,7 +40,7 @@
     <div class="row col-md-10">
         <h2>Account with changed currency</h2>
     </div>
-            <table class="table table-bordered table-hover">
+            <table class="table table-bordered table-hover" th:if="${changedAccount.getAccountNumber() != null}">
                 <thead class="table-dark">
                     <tr>
                         <th>AccountId</th>
@@ -55,5 +55,10 @@
                 </tbody>
                 <span><a th:href="@{/customer}">Close</a></span>
             </table>
+
+    <div th:if="${changedAccount.getAccountNumber() == null}">
+        <p>Account id not fount</p>
+        <span><a th:href="@{/customer}">Close</a></span>
+    </div>
 </div>
 </body>

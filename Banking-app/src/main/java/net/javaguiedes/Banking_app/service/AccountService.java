@@ -6,6 +6,8 @@ import net.javaguiedes.Banking_app.repository.AccountRepository;
 import net.javaguiedes.Banking_app.repository.CustomerRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class AccountService {
     private final AccountRepository accountRepository;
@@ -27,6 +29,10 @@ public class AccountService {
     public Account createAccount(String accountNumber, Integer balance,
                                  String currency, Long customerId) {
         Customer cutomer = customerRepository.findById(customerId).get();
+        Optional<Account> existingAccount = accountRepository.findByCustomerId(customerId);
+        if(existingAccount.isPresent()) {
+            return existingAccount.get();
+        }
         Account account = new Account();
         account.setId(accountRepository.findMaxId()+1);
         account.setAccountNumber(accountNumber);
