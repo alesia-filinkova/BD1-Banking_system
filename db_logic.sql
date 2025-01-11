@@ -319,17 +319,28 @@ END;
 
 --Sprawdzanie historii transakcji karty
 CREATE OR REPLACE FUNCTION get_transaction_history (p_payment_card_id IN NUMBER)
-RETURN SYS_REFCURSOR IS v_history SYS_REFCURSOR;
+RETURN SYS_REFCURSOR IS
+    v_history SYS_REFCURSOR;
+    v_count NUMBER;
 BEGIN
+    SELECT COUNT(*)
+    INTO v_count
+    FROM payment_cards
+    WHERE id = p_payment_card_id;
+
+    IF v_count = 0 THEN
+        RAISE_APPLICATION_ERROR(-20004, 'Payment card does not exist.');
+    END IF;
     OPEN v_history FOR
     SELECT id, amount, transaction_type, transaction_date
     FROM transactions
     WHERE payment_card_id = p_payment_card_id
     ORDER BY transaction_date DESC;
+
     RETURN v_history;
 EXCEPTION
-    WHEN NO_DATA_FOUND THEN
-        RAISE_APPLICATION_ERROR(-20004, 'Payment card does not exist.');
+    WHEN OTHERS THEN
+        RAISE_APPLICATION_ERROR(-20003, 'An error occurred: ' || SQLERRM);
 END;
 /
 
