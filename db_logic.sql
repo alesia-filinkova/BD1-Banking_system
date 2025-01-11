@@ -254,13 +254,15 @@ AS
     v_branch_id NUMBER;
     v_position_id NUMBER;
     v_salary NUMBER;
+    v_count NUMBER;
 BEGIN
-    IF EXISTS (
-        SELECT 1
-        FROM employees
-        WHERE LOWER(first_name) = LOWER(p_first_name)
-        AND LOWER(last_name) = LOWER(p_last_name)
-    ) THEN
+    SELECT COUNT(*)
+    INTO v_count
+    FROM employees
+    WHERE LOWER(first_name) = LOWER(p_first_name)
+    AND LOWER(last_name) = LOWER(p_last_name);
+
+    IF v_count > 0 THEN
         RAISE_APPLICATION_ERROR(-20006, 'Employee with such first name and last name already exists');
     END IF;
     SELECT bankbranch_id
@@ -328,7 +330,6 @@ BEGIN
 EXCEPTION
     WHEN NO_DATA_FOUND THEN
         RAISE_APPLICATION_ERROR(-20004, 'Payment card does not exist.');
-        RETURN 0;
 END;
 /
 
