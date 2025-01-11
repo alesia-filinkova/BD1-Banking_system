@@ -230,6 +230,12 @@ BEGIN
         v_cvv,
         p_account_id  
     );
+    EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+            RAISE_APPLICATION_ERROR(-20002, 'The account with ID does not exist.');
+        WHEN OTHERS THEN
+            RAISE_APPLICATION_ERROR(-20003, 'An error occurred: ' || SQLERRM);
+        ROLLBACK;
 END;
 /
 
@@ -249,6 +255,14 @@ AS
     v_position_id NUMBER;
     v_salary NUMBER;
 BEGIN
+    IF EXISTS (
+        SELECT 1
+        FROM employees
+        WHERE LOWER(first_name) = LOWER(p_first_name)
+        AND LOWER(last_name) = LOWER(p_last_name)
+    ) THEN
+        RAISE_APPLICATION_ERROR(-20006, 'Employee with such first name and last name already exists');
+    END IF;
     SELECT bankbranch_id
     INTO v_branch_id
     FROM(
@@ -290,6 +304,13 @@ BEGIN
     
     INSERT INTO employee_positions (employee_id, positions_id)
     VALUES (v_employee_id, v_position_id);
+    
+    EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+            RAISE_APPLICATION_ERROR(-20005, 'No available bank_branch or position');
+        WHEN OTHERS THEN
+            RAISE_APPLICATION_ERROR(-20003, 'An error occurred: ' || SQLERRM);
+        ROLLBACK;
 END;
 /
 
@@ -304,6 +325,10 @@ BEGIN
     WHERE payment_card_id = p_payment_card_id
     ORDER BY transaction_date DESC;
     RETURN v_history;
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        RAISE_APPLICATION_ERROR(-20004, 'Payment card does not exist.');
+        RETURN 0;
 END;
 /
 
@@ -319,7 +344,10 @@ BEGIN
     JOIN payment_cards pc
     ON t.payment_card_id = pc.id
     WHERE pc.account_id = p_account_id;
-
     RETURN v_transaction_count;
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        RAISE_APPLICATION_ERROR(-20002, 'The account with ID does not exist.');
+        RETURN 0;
 END;
 /
