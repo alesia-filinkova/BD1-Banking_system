@@ -188,9 +188,6 @@ BEGIN
 END;
 /
 
---INSERT INTO transactions (id, amount, transaction_type, payment_card_id) VALUES (62, 100, 'Payment', 3002);
---SELECT * FROM transactions WHERE id = 62;
-
 
 --Usunięcie karty konsumenta (Przy usunięciu karty, wszystkie związane z nią transakcje są również usuwane.)
 CREATE OR REPLACE TRIGGER delete_related_transactions
@@ -201,9 +198,6 @@ BEGIN
 END;
 /
 
---INSERT INTO payment_cards VALUES (3026, 2600333344445555, TO_DATE('2028-08-31', 'YYYY-MM-DD'), 206, 1001);
---INSERT INTO transactions (id, amount, transaction_type, payment_card_id) VALUES (3063, 600, 'Deposit', 3026);
---DELETE FROM payment_cards WHERE id = 3026;
 
 --Usunięcie konta konsumenta (Przy usunięciu konta, wszystkie związane z nim karty są również usuwane.)
 CREATE OR REPLACE TRIGGER delete_related_cards
@@ -238,11 +232,6 @@ BEGIN
     );
 END;
 /
-
-/* BEGIN
-    new_payment_card(1002);
-END;
-/ */
 
 
 --Dodanie pracownika 
@@ -304,11 +293,6 @@ BEGIN
 END;
 /
 
-/*BEGIN
-    assign_employee('Tomas', 'Smit');
-END;
-/ */
-
 
 --Sprawdzanie historii transakcji karty
 CREATE OR REPLACE FUNCTION get_transaction_history (p_payment_card_id IN NUMBER)
@@ -322,33 +306,6 @@ BEGIN
     RETURN v_history;
 END;
 /
-
-
-/*SET SERVEROUTPUT ON;
-DECLARE
-    v_history SYS_REFCURSOR;
-    v_id NUMBER;
-    v_amount NUMBER;
-    v_transaction_type VARCHAR2(50);
-    v_transaction_date DATE;
-BEGIN
-    -- Вызов функции
-    v_history := get_transaction_history(3001);
-
-    -- Обработка результата
-    LOOP
-        FETCH v_history INTO v_id, v_amount, v_transaction_type, v_transaction_date;
-        EXIT WHEN v_history%NOTFOUND;
-        
-        -- Вывод результата
-        DBMS_OUTPUT.PUT_LINE('ID: ' || v_id || ', Amount: ' || v_amount || 
-                             ', Type: ' || v_transaction_type || 
-                             ', Date: ' || TO_CHAR(v_transaction_date, 'YYYY-MM-DD'));
-    END LOOP;
-
-    CLOSE v_history;
-END;
-/ */
 
 
 --Obliczanie liczby transakcji na koncie
@@ -366,5 +323,3 @@ BEGIN
     RETURN v_transaction_count;
 END;
 /
-
---SELECT get_transaction_count(1003) AS transaction_count FROM dual;
