@@ -183,7 +183,7 @@ END;
 CREATE OR REPLACE TRIGGER set_transaction_date
 BEFORE INSERT ON transactions
 FOR EACH ROW
-BEGIN 
+BEGIN
     :NEW.transaction_date := SYSDATE;
 END;
 /
@@ -211,7 +211,7 @@ END;
 
 --Obsługa zamówienia nowej karty płatniczej(Procedura generuje nową kartę płatniczą dla konta klienta)
 CREATE OR REPLACE PROCEDURE new_payment_card(p_account_id IN NUMBER)
-AS 
+AS
     v_card_id NUMBER;
     v_card_number VARCHAR2(50);
     v_expiration_date DATE;
@@ -222,13 +222,13 @@ BEGIN
     v_expiration_date := ADD_MONTHS(SYSDATE, 60);
     v_card_number := LPAD(TRUNC(DBMS_RANDOM.VALUE(1, 9999999999999999)), 16, '0');
     v_cvv := LPAD(TRUNC(DBMS_RANDOM.VALUE(1, 999)), 3, '0');
-    INSERT INTO payment_cards (id, card_number, expiration_date, cvv, account_id) 
+    INSERT INTO payment_cards (id, card_number, expiration_date, cvv, account_id)
     VALUES(
         v_card_id,
         v_card_number,
         v_expiration_date,
         v_cvv,
-        p_account_id  
+        p_account_id
     );
     EXCEPTION
         WHEN NO_DATA_FOUND THEN
@@ -240,16 +240,16 @@ END;
 /
 
 
---Dodanie pracownika 
+--Dodanie pracownika
 -- + Automatyczne przypisanie pracownika do oddziału z najmniejszą liczbą pracowników
 -- +przypisanie do posycji z najmniejszą liczbą pracowników
 -- + nadanie najmniejszego zakładu dla tej pozycji
-CREATE OR REPLACE PROCEDURE assign_employee 
+CREATE OR REPLACE PROCEDURE assign_employee
 (
     p_first_name IN VARCHAR2,
     p_last_name IN VARCHAR2
 )
-AS 
+AS
     v_employee_id NUMBER;
     v_branch_id NUMBER;
     v_position_id NUMBER;
@@ -273,7 +273,7 @@ BEGIN
         GROUP BY bankbranch_id
         ORDER BY employee_count ASC
     ) WHERE ROWNUM = 1;
-    
+
     SELECT positions_id
     INTO v_position_id
     FROM (
@@ -284,15 +284,15 @@ BEGIN
         GROUP BY ep.positions_id
         ORDER BY employee_count ASC
     ) WHERE ROWNUM = 1;
-    
+
     SELECT MIN(salary)
     INTO v_salary
     FROM employees e
     INNER JOIN employee_positions ep ON e.id = ep.employee_id
     WHERE ep.positions_id = v_position_id;
-    
+
     SELECT MAX(id) + 1 INTO v_employee_id FROM employees;
-    
+
     INSERT INTO employees (id, first_name, last_name, salary)
     VALUES (
         v_employee_id,
@@ -300,13 +300,13 @@ BEGIN
         p_last_name,
         v_salary
     );
-    
+
     INSERT INTO employee_bankbranch (employee_id, bankbranch_id)
     VALUES (v_employee_id, v_branch_id);
-    
+
     INSERT INTO employee_positions (employee_id, positions_id)
     VALUES (v_employee_id, v_position_id);
-    
+
     EXCEPTION
         WHEN NO_DATA_FOUND THEN
             RAISE_APPLICATION_ERROR(-20005, 'No available bank_branch or position');
@@ -318,11 +318,20 @@ END;
 
 
 --Sprawdzanie historii transakcji karty
+CREATE OR REPLACE TYPE transaction_record AS OBJECT (
+    id NUMBER,
+    amount NUMBER,
+    transaction_type VARCHAR2(50),
+    transaction_date DATE
+);
+CREATE OR REPLACE TYPE transaction_table AS TABLE OF transaction_record;
+
 CREATE OR REPLACE FUNCTION get_transaction_history (p_payment_card_id IN NUMBER)
-RETURN SYS_REFCURSOR IS
-    v_history SYS_REFCURSOR;
+RETURN transaction_table IS
+    v_history transaction_table := transaction_table();
     v_count NUMBER;
 BEGIN
+
     SELECT COUNT(*)
     INTO v_count
     FROM payment_cards
@@ -331,8 +340,9 @@ BEGIN
     IF v_count = 0 THEN
         RAISE_APPLICATION_ERROR(-20004, 'Payment card does not exist.');
     END IF;
-    OPEN v_history FOR
-    SELECT id, amount, transaction_type, transaction_date
+
+    SELECT transaction_record(id, amount, transaction_type, transaction_date)
+    BULK COLLECT INTO v_history
     FROM transactions
     WHERE payment_card_id = p_payment_card_id
     ORDER BY transaction_date DESC;

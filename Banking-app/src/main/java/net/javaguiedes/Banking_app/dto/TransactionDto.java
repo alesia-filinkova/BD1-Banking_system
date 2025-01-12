@@ -9,7 +9,6 @@ import java.util.Date;
 
 @Setter
 @Getter
-@AllArgsConstructor
 @NoArgsConstructor
 public class TransactionDto {
     Long id;

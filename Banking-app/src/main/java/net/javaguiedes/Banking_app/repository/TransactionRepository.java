@@ -1,15 +1,10 @@
 package net.javaguiedes.Banking_app.repository;
 
-import net.javaguiedes.Banking_app.entity.Employee;
 import net.javaguiedes.Banking_app.entity.Transaction;
-import org.springframework.data.annotation.Id;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import net.javaguiedes.Banking_app.entity.Account;
-import org.springframework.data.jpa.repository.query.Procedure;
-import net.javaguiedes.Banking_app.dto.TransactionDto;
 
 import java.util.List;
 
@@ -25,6 +20,6 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     @Query(value = "SELECT get_transaction_count(:accountId) FROM DUAL", nativeQuery = true)
     Integer getTransactionCount(@Param("accountId") Long accountId);
 
-    @Query(value = "SELECT get_transaction_history(:paymentCardId) FROM DUAL", nativeQuery = true)
+    @Query(value = "SELECT * FROM TABLE(get_transaction_history(:paymentCardId))", nativeQuery = true)
     List<Object[]> getTransactionHistory(@Param("paymentCardId") Long paymentCardId);
 }

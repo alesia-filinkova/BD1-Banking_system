@@ -1,17 +1,18 @@
 package net.javaguiedes.Banking_app.service;
 
+import net.javaguiedes.Banking_app.dto.TransactionDto;
 import net.javaguiedes.Banking_app.entity.PaymentCard;
 import net.javaguiedes.Banking_app.entity.Transaction;
 import net.javaguiedes.Banking_app.repository.PaymentCardRepository;
 import net.javaguiedes.Banking_app.repository.TransactionRepository;
 import org.springframework.stereotype.Service;
-import net.javaguiedes.Banking_app.dto.TransactionDto;
-import java.util.stream.Collectors;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class TransactionService {
@@ -56,14 +57,17 @@ public class TransactionService {
     }
 
     public List<TransactionDto> getTransactionHistory(Long paymentCardId) {
-        List<Object[]> rawResults = transactionRepository.getTransactionHistory(paymentCardId);
-        return rawResults.stream()
-                .map(row -> new TransactionDto(
-                        ((Long) row[0]),  // id
-                        (Integer) row[1],                // amount
-                        (String) row[2],                    // transactionType
-                        ((Date) row[3]) // transactionDate
-                ))
+        List<Object[]> results = transactionRepository.getTransactionHistory(paymentCardId);
+        System.out.println(results.get(0)[0]);
+        return results.stream()
+                .map(row -> {
+                    TransactionDto dto = new TransactionDto();
+                    dto.setId(((BigDecimal) row[0]).longValue());
+                    dto.setAmount(((BigDecimal) row[1]).intValue());
+                    dto.setTransactionType((String) row[2]);
+                    dto.setTransactionDate((Date) row[3]);
+                    return dto;
+                })
                 .collect(Collectors.toList());
     }
 }
