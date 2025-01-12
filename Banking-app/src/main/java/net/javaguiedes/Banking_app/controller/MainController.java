@@ -13,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
 
 
 import java.util.ArrayList;
@@ -241,4 +242,12 @@ public class MainController {
         model.addAttribute("result", result);
         return "/transactionCount";
     }
+
+    @PostMapping("/transactionHistory")
+    public String getTransactionHistory(@RequestParam("paymentCardId") Long paymentCardId, Model model) {
+        List<TransactionDto> transactions = transactionService.getTransactionHistory(paymentCardId);
+        model.addAttribute("transactions", transactions);
+        return "/transactionHistory";
+    }
+
 }

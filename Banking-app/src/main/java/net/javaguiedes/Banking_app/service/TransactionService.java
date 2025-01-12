@@ -5,9 +5,12 @@ import net.javaguiedes.Banking_app.entity.Transaction;
 import net.javaguiedes.Banking_app.repository.PaymentCardRepository;
 import net.javaguiedes.Banking_app.repository.TransactionRepository;
 import org.springframework.stereotype.Service;
+import net.javaguiedes.Banking_app.dto.TransactionDto;
+import java.util.stream.Collectors;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -50,5 +53,17 @@ public class TransactionService {
             throw new IllegalArgumentException("Account ID cannot be null");
         }
         return transactionRepository.getTransactionCount(accountId);
+    }
+
+    public List<TransactionDto> getTransactionHistory(Long paymentCardId) {
+        List<Object[]> rawResults = transactionRepository.getTransactionHistory(paymentCardId);
+        return rawResults.stream()
+                .map(row -> new TransactionDto(
+                        ((Long) row[0]),  // id
+                        (Integer) row[1],                // amount
+                        (String) row[2],                    // transactionType
+                        ((Date) row[3]) // transactionDate
+                ))
+                .collect(Collectors.toList());
     }
 }

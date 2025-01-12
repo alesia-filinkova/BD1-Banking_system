@@ -5,13 +5,23 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.web.bind.annotation.RequestParam;
+import java.util.Date;
 
 @Setter
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
 public class TransactionDto {
+    Long id;
     String paymentCard;
     Integer amount;
     String transactionType;
+    Date transactionDate;
+
+    public TransactionDto(Long id, Integer amount, String transactionType, Date transactionDate) {
+        this.id = id;
+        this.amount = amount;
+        this.transactionType = transactionType;
+        this.transactionDate = transactionDate;
+    }
 }
