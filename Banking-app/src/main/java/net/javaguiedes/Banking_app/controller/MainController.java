@@ -226,5 +226,19 @@ public class MainController {
         return "/createAccount";
     }
 
-
+    @PostMapping("/transactionCount")
+    public String getTransactionCount(
+            @Valid @ModelAttribute("accountId") Long accountId,
+            Model model
+    ) {
+        String result;
+        try {
+            Integer transactionCount = transactionService.getTransactionCountForAccount(accountId);
+            result = "The account has " + transactionCount + " transactions.";
+        } catch (Exception e) {
+            result = "Error: " + e.getMessage();
+        }
+        model.addAttribute("result", result);
+        return "/transactionCount";
+    }
 }

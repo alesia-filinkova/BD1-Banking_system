@@ -45,4 +45,10 @@ public class TransactionService {
         return paymentCardRepository.findByCardNumber(cardNumber);
     }
 
+    public Integer getTransactionCountForAccount(Long accountId) {
+        if (accountId == null) {
+            throw new IllegalArgumentException("Account ID cannot be null");
+        }
+        return transactionRepository.getTransactionCount(accountId);
+    }
 }
