@@ -267,4 +267,16 @@ public class MainController {
         return "/deleteInactiveAccounts";
     }
 
+    @PostMapping("/newPaymentCard")
+    public String createNewPaymentCard(@RequestParam("accountId") Long accountId, Model model) {
+        String result;
+        try {
+            accountService.createNewPaymentCard(accountId);
+            result = "New payment card created successfully for account ID: " + accountId;
+        } catch (Exception e) {
+            result = "Error: " + e.getMessage();
+        }
+        model.addAttribute("result", result);
+        return "/newPaymentCard";
+    }
 }

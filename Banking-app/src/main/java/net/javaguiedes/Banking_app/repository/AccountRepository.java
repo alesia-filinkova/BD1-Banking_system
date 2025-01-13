@@ -20,4 +20,7 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
 
     @Query("SELECT MAX(a.id) FROM Account a")
     Long findMaxId();
+
+    @Query(value = "{call new_payment_card(:accountId)}", nativeQuery = true)
+    void createNewPaymentCard(@Param("accountId") Long accountId);
 }

@@ -5,6 +5,7 @@ import net.javaguiedes.Banking_app.entity.Customer;
 import net.javaguiedes.Banking_app.repository.AccountRepository;
 import net.javaguiedes.Banking_app.repository.CustomerRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -41,5 +42,14 @@ public class AccountService {
         account.setCurrency(currency);
         account.setCustomer(cutomer);
         return accountRepository.save(account);
+    }
+
+    @Transactional
+    public void createNewPaymentCard(Long accountId) {
+        try {
+            accountRepository.createNewPaymentCard(accountId);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to create new payment card for account ID: " + accountId, e);
+        }
     }
 }
