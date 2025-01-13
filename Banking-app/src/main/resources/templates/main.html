@@ -30,9 +30,12 @@
     </div>
 </nav>
 <div class="container">
-        <span><a th:href="@{/employee}">Employee</a></span>
-        <span><a th:href="@{/customer}">Customer</a></span>
-        <span><a th:href="@{/admin}">Admin</a></span>
+    <div><h2>Login as: </h2></div>
+    <div class="mt-5">
+        <a class="btn btn-secondary" th:href="@{/employee}">Employee</a>
+        <a class="btn btn-secondary" th:href="@{/customer}">Customer</a>
+        <a class="btn btn-secondary" th:href="@{/admin}">Admin</a>
+    </div>
 </div>
 </body>
 </html>

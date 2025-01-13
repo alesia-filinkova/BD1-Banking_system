@@ -23,6 +23,7 @@ public class AccountService {
     }
 
     public Integer getBalance(Long accountId) {
+        System.out.println("________");
         return accountRepository.getBalance(accountId);
     }
 

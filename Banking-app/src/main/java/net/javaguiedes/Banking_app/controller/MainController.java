@@ -211,8 +211,8 @@ public class MainController {
     public String getBalance(
             @Valid @ModelAttribute("customerId") Long customerId,
             Model model){
-        System.out.println(customerId);
         Integer result = accountService.getBalance(customerId);
+        System.out.println("+++++");
         model.addAttribute("result", result);
         return "/customerBalance";
     }
