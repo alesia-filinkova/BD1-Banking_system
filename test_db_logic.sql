@@ -476,44 +476,57 @@ END;
 
 -------Tests get_transaction_history-------
 
----Test history exist---
-DECLARE
-    v_history SYS_REFCURSOR;
-    v_id NUMBER;
-    v_amount NUMBER;
-    v_transaction_type VARCHAR2(50);
-    v_transaction_date DATE;
+---Test get history
 BEGIN
-    v_history := get_transaction_history(3001);
+    INSERT INTO payment_cards VALUES (2, '9876-5432-1098-7654', ADD_MONTHS(TRUNC(SYSDATE), 60), '222', 1001);
+    INSERT INTO transactions VALUES (101, 100, 'Deposit', SYSDATE, 2);
+    INSERT INTO transactions VALUES (102, 200, 'Refund', SYSDATE, 2);
 
-    LOOP
-        FETCH v_history INTO v_id, v_amount, v_transaction_type, v_transaction_date;
-        EXIT WHEN v_history%NOTFOUND;
+    DECLARE
+        result transaction_table;
+    BEGIN
+        result := get_transaction_history(2);
+        FOR i IN 1..result.COUNT LOOP
+            DBMS_OUTPUT.PUT_LINE('ID: ' || result(i).id || ', Amount: ' || result(i).amount ||
+                                 ', Type: ' || result(i).transaction_type || ', Date: ' || result(i).transaction_date);
+        END LOOP;
+    END;
 
-        DBMS_OUTPUT.PUT_LINE('ID: ' || v_id || ', Amount: ' || v_amount || 
-                             ', Type: ' || v_transaction_type || 
-                             ', Date: ' || TO_CHAR(v_transaction_date, 'YYYY-MM-DD'));
-    END LOOP;
-    CLOSE v_history;
+    DELETE FROM transactions WHERE payment_card_id = 2;
+    DELETE FROM payment_cards WHERE id = 2;
+    COMMIT;
 END;
 /
 
----Test raise no such card id error---
-DECLARE
-    v_history SYS_REFCURSOR;
-    v_id NUMBER;
-    v_amount NUMBER;
-    v_transaction_type VARCHAR2(50);
-    v_transaction_date DATE;
+---Test card exist but no transactions
 BEGIN
-    DBMS_OUTPUT.PUT_LINE('Test 2: Checking transaction history for non-existent card');
-    v_history := get_transaction_history(1); -- Non-existent card ID
+    INSERT INTO payment_cards VALUES (2, '9876-5432-1098-7654', ADD_MONTHS(TRUNC(SYSDATE), 60), '222', 1001);
+    DECLARE
+        result transaction_table;
+    BEGIN
+        result := get_transaction_history(2);
+        IF result.COUNT = 0 THEN
+            DBMS_OUTPUT.PUT_LINE('test passed: No transactions found for card ID 2.');
+        ELSE
+            DBMS_OUTPUT.PUT_LINE('test failed: Unexpected transactions found.');
+        END IF;
+    END;
+    DELETE FROM payment_cards WHERE id = 2;
+    COMMIT;
+END;
+/
+
+
+---Test call error cadr does not exist
+BEGIN
+    DECLARE
+        result transaction_table;
+    BEGIN
+        result := get_transaction_history(999);
     EXCEPTION
         WHEN OTHERS THEN
-            DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
-            IF v_history IS NOT NULL THEN
-                CLOSE v_history;
-            END IF;
+            DBMS_OUTPUT.PUT_LINE('Expected error: ' || SQLERRM);
+    END;
 END;
 /
 
