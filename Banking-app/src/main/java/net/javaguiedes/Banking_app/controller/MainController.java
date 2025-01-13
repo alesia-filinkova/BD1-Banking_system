@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 
 @Controller
@@ -271,12 +272,12 @@ public class MainController {
     public String createNewPaymentCard(@RequestParam("accountId") Long accountId, Model model) {
         String result;
         try {
-            accountService.createNewPaymentCard(accountId);
-            result = "New payment card created successfully for account ID: " + accountId;
+            result = accountService.createNewPaymentCard(accountId);
         } catch (Exception e) {
-            result = "Error: " + e.getMessage();
+            result = "Failed to create payment card: " + e.getMessage();
         }
         model.addAttribute("result", result);
-        return "/newPaymentCard";
+        return "newPaymentCard";
     }
+
 }

@@ -4,9 +4,11 @@ import net.javaguiedes.Banking_app.entity.Account;
 import net.javaguiedes.Banking_app.entity.Customer;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.query.Procedure;
 import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
+import java.util.List;
 
 public interface AccountRepository extends JpaRepository<Account, Long> {
 
@@ -21,6 +23,6 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
     @Query("SELECT MAX(a.id) FROM Account a")
     Long findMaxId();
 
-    @Query(value = "{call new_payment_card(:accountId)}", nativeQuery = true)
-    void createNewPaymentCard(@Param("accountId") Long accountId);
+    @Procedure(procedureName = "new_payment_card")
+    void createNewPaymentCard(@Param("p_account_id") Long accountId);
 }

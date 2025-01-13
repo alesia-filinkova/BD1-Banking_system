@@ -2,12 +2,16 @@ package net.javaguiedes.Banking_app.service;
 
 import net.javaguiedes.Banking_app.entity.Account;
 import net.javaguiedes.Banking_app.entity.Customer;
+import net.javaguiedes.Banking_app.entity.PaymentCard;
 import net.javaguiedes.Banking_app.repository.AccountRepository;
 import net.javaguiedes.Banking_app.repository.CustomerRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class AccountService {
@@ -44,12 +48,8 @@ public class AccountService {
         return accountRepository.save(account);
     }
 
-    @Transactional
-    public void createNewPaymentCard(Long accountId) {
-        try {
-            accountRepository.createNewPaymentCard(accountId);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to create new payment card for account ID: " + accountId, e);
-        }
+    public String createNewPaymentCard(Long accountId) {
+        accountRepository.createNewPaymentCard(accountId);
+        return "Card was successfully created";
     }
 }
