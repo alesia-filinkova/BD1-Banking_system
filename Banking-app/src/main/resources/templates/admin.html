@@ -65,6 +65,41 @@
         </div>
     </div>
 </div>
+<br /><br /><br />
+<div class="container">
+    <div class="row col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="text-center">Distribute bonus</h2>
+            </div>
+            <div class="card-body">
+                <form
+                        method="post"
+                        role="form"
+                        th:action="@{/distributeBonus}"
+                        th:variable="${bonusAmount}"
+                >
+                    <div class="form-group mb-3">
+                        <label class="form-label">Amount with will  be distribute</label>
+                        <input
+                                class="form-control"
+                                id="bonusAmount"
+                                name="bonusAmount"
+                                placeholder="Enter amount"
+                                th:variable="*{bonusAmount}"
+                                type="number"
+                                required
+                        />
+                    </div>
+
+                    <div class="form-group">
+                        <button class="btn btn-primary" type="submit">Distribute</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 </html></title>
 </head>

@@ -373,3 +373,43 @@ EXCEPTION
         RETURN 0;
 END;
 /
+
+
+-- Distributes a given bonus equally among employees for each position and update salary
+CREATE OR REPLACE PROCEDURE distribute_bonus (
+   p_bonus_amount in NUMBER
+) AS
+BEGIN
+   FOR position_rec in (
+      SELECT p.id AS position_id, count(*) AS employee_count
+      FROM positions p JOIN employee_positions ep
+      ON p.id = ep.positions_id JOIN employees e
+      ON ep.employee_id = e.id GROUP BY p.id
+   ) LOOP
+      UPDATE employees
+        SET
+         salary = salary + ( p_bonus_amount / position_rec.employee_count )
+       WHERE id in (
+         SELECT ep.employee_id
+           FROM employee_positions ep
+           WHERE ep.positions_id = position_rec.position_id
+      );
+   END LOOP;
+END;
+
+
+
+CREATE OR REPLACE PROCEDURE delete_inactive_accounts AS
+BEGIN
+   FOR account_rec IN (
+      SELECT a.id AS account_id
+        FROM accounts a
+        JOIN payment_cards pc
+      ON pc.account_id = a.id
+       WHERE pc.expiration_date < sysdate - 30
+   ) LOOP
+      DELETE FROM accounts
+       WHERE id = account_rec.account_id;
+   END LOOP;
+END;
+/

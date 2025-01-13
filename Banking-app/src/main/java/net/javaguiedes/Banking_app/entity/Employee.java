@@ -14,6 +14,18 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@NamedStoredProcedureQuery(
+        name = "distribute_bonus",
+        procedureName = "distribute_bonus",
+        parameters = {
+                @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_bonus_amount", type = Integer.class),
+        }
+)
+
+@NamedStoredProcedureQuery(
+        name = "delete_inactive_accounts",
+        procedureName = "delete_inactive_accounts"
+)
 public class Employee {
 
     @Id

@@ -46,6 +46,8 @@ public class MainController {
     public String adminPage(Model model) {
         Long banchId = 0L;
         model.addAttribute("branchId", banchId);
+        Integer bonusAmount = 0;
+        model.addAttribute("bonusAmount", bonusAmount);
         return "admin";
     }
 
@@ -249,6 +251,20 @@ public class MainController {
         System.out.println(transactions);
         model.addAttribute("transactions", transactions);
         return "/transactionHistory";
+    }
+
+    @PostMapping("/distributeBonus")
+    public String distributeBonus(@RequestParam("bonusAmount") Integer bonusAmount, Model model) {
+        employeeService.distributeBonus(bonusAmount);
+        model.addAttribute("result", "Bonus distribute successfully");
+        return "/distributeBonus";
+    }
+
+    @GetMapping("/deleteInactiveAccounts")
+    public String deleteInactiveAccounts(Model model) {
+        employeeService.deleteInactiveAccounts();
+        model.addAttribute("result", "Inactive account deleted successfully");
+        return "/deleteInactiveAccounts";
     }
 
 }
