@@ -867,3 +867,68 @@ BEGIN
 END;
 /
 
+
+-------Tests delete_inactive_accounts-------
+BEGIN
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE accounts_backup';
+    EXCEPTION
+        WHEN OTHERS THEN
+            NULL;
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE payment_cards_backup';
+    EXCEPTION
+        WHEN OTHERS THEN
+            NULL;
+    END;
+
+    EXECUTE IMMEDIATE 'CREATE TABLE accounts_backup AS SELECT * FROM accounts';
+    EXECUTE IMMEDIATE 'CREATE TABLE payment_cards_backup AS SELECT * FROM payment_cards';
+
+    INSERT INTO accounts (id, account_number, currency, customer_id) VALUES (1, 'ActiveAccount', 'PL', 1001);
+    INSERT INTO accounts (id, account_number, currency, customer_id) VALUES (2, 'InactiveAccount', 'PL', 1001);
+
+    INSERT INTO payment_cards (id, account_id, expiration_date, cvv, card_number) VALUES (1, 1, (SYSDATE + 100), '999', '999'); -- Активная карта
+    INSERT INTO payment_cards (id, account_id, expiration_date, cvv, card_number) VALUES (2, 2, (SYSDATE - 40), '998', '998'); -- Истекшая карта
+
+    BEGIN
+        delete_inactive_accounts;
+        DBMS_OUTPUT.PUT_LINE('Test Case 1: Procedure executed successfully.');
+    EXCEPTION
+        WHEN OTHERS THEN
+            DBMS_OUTPUT.PUT_LINE('Test Case 1 Failed: ' || SQLERRM);
+    END;
+
+    BEGIN
+        DECLARE
+            v_active_count NUMBER;
+            v_inactive_count NUMBER;
+        BEGIN
+            SELECT COUNT(*) INTO v_active_count FROM accounts WHERE id = 1;
+            SELECT COUNT(*) INTO v_inactive_count FROM accounts WHERE id = 2;
+
+            IF v_active_count = 1 AND v_inactive_count = 0 THEN
+                DBMS_OUTPUT.PUT_LINE('Test Case 2: Inactive accounts deleted successfully.');
+            ELSE
+                DBMS_OUTPUT.PUT_LINE('Test Case 2 Failed: Incorrect account deletion.');
+            END IF;
+        END;
+    END;
+
+    EXECUTE IMMEDIATE 'DELETE FROM payment_cards';
+    EXECUTE IMMEDIATE 'INSERT INTO payment_cards SELECT * FROM payment_cards_backup';
+
+    EXECUTE IMMEDIATE 'DELETE FROM accounts';
+    EXECUTE IMMEDIATE 'INSERT INTO accounts SELECT * FROM accounts_backup';
+
+    EXECUTE IMMEDIATE 'DROP TABLE accounts_backup';
+    EXECUTE IMMEDIATE 'DROP TABLE payment_cards_backup';
+
+    COMMIT;
+
+    DBMS_OUTPUT.PUT_LINE('All tests completed successfully.');
+END;
+/
+
