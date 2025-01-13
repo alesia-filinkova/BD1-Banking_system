@@ -739,3 +739,131 @@ BEGIN
     END;
 END;
 /
+
+
+-------Tests distribute_bonus-------
+---Test no employees---
+BEGIN
+    EXECUTE IMMEDIATE 'ALTER TABLE employee_bankbranch DISABLE CONSTRAINT EMPLOYEE_BANKBRANCH_EMPLOYEE_FK';
+    EXECUTE IMMEDIATE 'ALTER TABLE employee_positions DISABLE CONSTRAINT EMPLOYEE_POSITIONS_EMPLOYEE_FK';
+
+    EXECUTE IMMEDIATE 'CREATE TABLE employees_backup AS SELECT * FROM employees';
+    EXECUTE IMMEDIATE 'CREATE TABLE employee_positions_backup AS SELECT * FROM employee_positions';
+
+    INSERT INTO positions (id, name) VALUES (5, 'EmptyPosition');
+
+    BEGIN
+        distribute_bonus(5000);
+        DBMS_OUTPUT.PUT_LINE('Test passed: No employees for position ID 5, no changes made.');
+    EXCEPTION
+        WHEN OTHERS THEN
+            DBMS_OUTPUT.PUT_LINE('Test failed: ' || SQLERRM);
+    END;
+
+    EXECUTE IMMEDIATE 'DELETE FROM employee_positions';
+    EXECUTE IMMEDIATE 'INSERT INTO employee_positions SELECT * FROM employee_positions_backup';
+
+    EXECUTE IMMEDIATE 'DELETE FROM employees';
+    EXECUTE IMMEDIATE 'INSERT INTO employees SELECT * FROM employees_backup';
+
+    EXECUTE IMMEDIATE 'DROP TABLE employees_backup';
+    EXECUTE IMMEDIATE 'DROP TABLE employee_positions_backup';
+    delete from positions where id = 5;
+
+    EXECUTE IMMEDIATE 'ALTER TABLE employee_bankbranch ENABLE CONSTRAINT EMPLOYEE_BANKBRANCH_EMPLOYEE_FK';
+    EXECUTE IMMEDIATE 'ALTER TABLE employee_positions ENABLE CONSTRAINT EMPLOYEE_POSITIONS_EMPLOYEE_FK';
+
+    COMMIT;
+END;
+/
+
+---Test ends sucsessfully---
+BEGIN
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE employees_backup';
+    EXCEPTION
+        WHEN OTHERS THEN
+            NULL;
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE employee_positions_backup';
+    EXCEPTION
+        WHEN OTHERS THEN
+            NULL;
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE positions_backup';
+    EXCEPTION
+        WHEN OTHERS THEN
+            NULL;
+    END;
+    
+    EXECUTE IMMEDIATE 'ALTER TABLE employee_bankbranch DISABLE CONSTRAINT EMPLOYEE_BANKBRANCH_EMPLOYEE_FK';
+    EXECUTE IMMEDIATE 'ALTER TABLE employee_positions DISABLE CONSTRAINT EMPLOYEE_POSITIONS_EMPLOYEE_FK';
+    EXECUTE IMMEDIATE 'ALTER TABLE employee_positions DISABLE CONSTRAINT EMPLOYEE_POSITIONS_POSITIONS_FK';
+    
+    EXECUTE IMMEDIATE 'CREATE TABLE employees_backup AS SELECT * FROM employees';
+    EXECUTE IMMEDIATE 'CREATE TABLE employee_positions_backup AS SELECT * FROM employee_positions';
+    EXECUTE IMMEDIATE 'CREATE TABLE positions_backup AS SELECT * FROM positions';
+
+    INSERT INTO positions (id, name) VALUES (1, 'M');
+    INSERT INTO positions (id, name) VALUES (2, 'Developer');
+
+    INSERT INTO employees (id, first_name, last_name, salary) VALUES (1, 'Alice', 's', 50000);
+    INSERT INTO employees (id, first_name, last_name, salary) VALUES (2, 'Bob', 'd', 40000);
+    INSERT INTO employees (id, first_name, last_name, salary) VALUES (3, 'Charlie', 'f', 45000);
+
+    INSERT INTO employee_positions (employee_id, positions_id) VALUES (1, 1);
+    INSERT INTO employee_positions (employee_id, positions_id) VALUES (2, 2);
+    INSERT INTO employee_positions (employee_id, positions_id) VALUES (3, 2);
+
+    BEGIN
+        distribute_bonus(9000);
+        DBMS_OUTPUT.PUT_LINE('Test Case 1: Procedure executed successfully.');
+    EXCEPTION
+        WHEN OTHERS THEN
+            DBMS_OUTPUT.PUT_LINE('Test Case 1 Failed: ' || SQLERRM);
+    END;
+
+    BEGIN
+        DECLARE
+            v_salary_alice NUMBER;
+            v_salary_bob NUMBER;
+            v_salary_charlie NUMBER;
+        BEGIN
+            SELECT salary INTO v_salary_alice FROM employees WHERE id = 1;
+            SELECT salary INTO v_salary_bob FROM employees WHERE id = 2;
+            SELECT salary INTO v_salary_charlie FROM employees WHERE id = 3;
+
+            IF v_salary_alice = 59000 AND v_salary_bob = 44500 AND v_salary_charlie = 49500 THEN
+                DBMS_OUTPUT.PUT_LINE('Test Case 2: Salary updates are correct.');
+            ELSE
+                DBMS_OUTPUT.PUT_LINE('Test Case 2 Failed: Incorrect salary updates.');
+            END IF;
+        END;
+    END;
+
+    EXECUTE IMMEDIATE 'DELETE FROM employee_positions';
+    EXECUTE IMMEDIATE 'INSERT INTO employee_positions SELECT * FROM employee_positions_backup';
+
+    EXECUTE IMMEDIATE 'DELETE FROM employees';
+    EXECUTE IMMEDIATE 'INSERT INTO employees SELECT * FROM employees_backup';
+
+    EXECUTE IMMEDIATE 'DELETE FROM positions';
+    EXECUTE IMMEDIATE 'INSERT INTO positions SELECT * FROM positions_backup';
+
+    EXECUTE IMMEDIATE 'DROP TABLE employees_backup';
+    EXECUTE IMMEDIATE 'DROP TABLE employee_positions_backup';
+    EXECUTE IMMEDIATE 'DROP TABLE positions_backup';
+
+    EXECUTE IMMEDIATE 'ALTER TABLE employee_bankbranch ENABLE CONSTRAINT EMPLOYEE_BANKBRANCH_EMPLOYEE_FK';
+    EXECUTE IMMEDIATE 'ALTER TABLE employee_positions ENABLE CONSTRAINT EMPLOYEE_POSITIONS_EMPLOYEE_FK';
+    
+    COMMIT;
+
+    DBMS_OUTPUT.PUT_LINE('Test completed successfully.');
+END;
+/
+
