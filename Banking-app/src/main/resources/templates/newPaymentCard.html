@@ -1,4 +1,4 @@
-<!<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
@@ -23,33 +23,27 @@
         <p th:text="${error}"></p>
     </div>
 
-    <div th:if="${cards}" class="card">
-        <div class="card-body">
-            <h3>Created Card</h3>
-            <table class="table table-striped">
-                <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Card Number</th>
-                    <th>Expiration Date</th>
-                    <th>CVV</th>
-                    <th>Account ID</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="card : ${cards}">
-                    <td th:text="${card.id}"></td>
-                    <td th:text="${card.cardNumber}"></td>
-                    <td th:text="${card.expirationDate}"></td>
-                    <td th:text="${card.cvv}"></td>
-                    <td th:text="${card.accountId}"></td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
+    <div class="card">
+        <table class="table">
+            <tr>
+                <th>ID</th>
+                <th>Card Number</th>
+                <th>Expiration Date</th>
+                <th>CVV</th>
+                <th>Account ID</th>
+            </tr>
+            <tr>
+                <td th:text="${card.id}"></td>
+                <td th:text="${card.cardNumber}"></td>
+                <td th:text="${card.expirationDate}"></td>
+                <td th:text="${card.cvv}"></td>
+                <td th:text="${card.account.id}"></td>
+            </tr>
+        </table>
     </div>
+
     <div class="mt-3">
-        <a class="btn btn-secondary" th:href="@{/main}">Back to Main</a>
+        <a class="btn btn-secondary" th:href="@{/customer}">Back to Customer</a>
     </div>
 </div>
 </body>

@@ -4,10 +4,7 @@ package net.javaguiedes.Banking_app.controller;
 import jakarta.validation.Valid;
 import net.javaguiedes.Banking_app.dto.Currency;
 import net.javaguiedes.Banking_app.dto.TransactionDto;
-import net.javaguiedes.Banking_app.entity.Account;
-import net.javaguiedes.Banking_app.entity.Address;
-import net.javaguiedes.Banking_app.entity.Customer;
-import net.javaguiedes.Banking_app.entity.Transaction;
+import net.javaguiedes.Banking_app.entity.*;
 import net.javaguiedes.Banking_app.service.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 
 @Controller
@@ -270,14 +266,16 @@ public class MainController {
 
     @PostMapping("/newPaymentCard")
     public String createNewPaymentCard(@RequestParam("accountId") Long accountId, Model model) {
-        String result;
         try {
-            result = accountService.createNewPaymentCard(accountId);
+            accountService.createNewPaymentCard(accountId);
+            PaymentCard newCard = accountService.getLastPaymentCard(accountId);
+
+            model.addAttribute("card", newCard);
+            return "newPaymentCard";
         } catch (Exception e) {
-            result = "Failed to create payment card: " + e.getMessage();
+            model.addAttribute("error", "Failed to create a payment card: " + e.getMessage());
+            return "newPaymentCard";
         }
-        model.addAttribute("result", result);
-        return "newPaymentCard";
     }
 
 }

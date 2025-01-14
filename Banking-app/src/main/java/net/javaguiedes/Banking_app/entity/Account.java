@@ -8,6 +8,14 @@ import lombok.Setter;
 
 
 @Entity
+@NamedStoredProcedureQuery(
+        name = "new_payment_card",
+        procedureName = "new_payment_card",
+        parameters = {
+                @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_account_id", type = Long.class)
+        }
+)
+
 @Table(name = "accounts")
 @Getter
 @Setter

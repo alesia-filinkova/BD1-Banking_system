@@ -5,22 +5,22 @@ import net.javaguiedes.Banking_app.entity.Customer;
 import net.javaguiedes.Banking_app.entity.PaymentCard;
 import net.javaguiedes.Banking_app.repository.AccountRepository;
 import net.javaguiedes.Banking_app.repository.CustomerRepository;
+import net.javaguiedes.Banking_app.repository.PaymentCardRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 @Service
 public class AccountService {
     private final AccountRepository accountRepository;
     private final CustomerRepository customerRepository;
+    private final PaymentCardRepository paymentCardRepository;
 
-    public AccountService(AccountRepository accountRepository, CustomerRepository customerRepository) {
+    public AccountService(AccountRepository accountRepository, CustomerRepository customerRepository, PaymentCardRepository paymentCardRepository) {
         this.accountRepository = accountRepository;
         this.customerRepository = customerRepository;
+        this.paymentCardRepository = paymentCardRepository;
     }
 
     public Integer hasActiveCard(Long accountId) {
@@ -46,6 +46,10 @@ public class AccountService {
         account.setCurrency(currency);
         account.setCustomer(cutomer);
         return accountRepository.save(account);
+    }
+
+    public PaymentCard getLastPaymentCard(Long accountId) {
+        return paymentCardRepository.findTopByAccountIdOrderByIdDesc(accountId);
     }
 
     public String createNewPaymentCard(Long accountId) {
