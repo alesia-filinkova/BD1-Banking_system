@@ -17,4 +17,8 @@ public class EmployeeService {
     public void deleteInactiveAccounts(){
         employeeRepository.deleteInactiveAccounts();
     }
+
+    public void assignEmployee(String firstName, String lastName) {
+        employeeRepository.assignEmployee(firstName, lastName);
+    }
 }

@@ -13,4 +13,9 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
 
     @Procedure(name = "delete_inactive_accounts")
     void deleteInactiveAccounts();
+
+    @Procedure(procedureName = "assign_employee")
+    void assignEmployee(
+            @Param("p_first_name") String firstName,
+            @Param("p_last_name") String lastName);
 }

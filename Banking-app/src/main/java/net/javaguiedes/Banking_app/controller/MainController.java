@@ -278,4 +278,18 @@ public class MainController {
         }
     }
 
+    @PostMapping("/assignEmployee")
+    public String assignEmployee(
+            @RequestParam("firstName") String firstName,
+            @RequestParam("lastName") String lastName,
+            Model model) {
+        try {
+            employeeService.assignEmployee(firstName, lastName);
+            model.addAttribute("success", "Employee successfully assigned.");
+        } catch (Exception e) {
+            model.addAttribute("error", "Failed to assign employee: " + e.getMessage());
+        }
+        return "assignEmployee";
+    }
+
 }
