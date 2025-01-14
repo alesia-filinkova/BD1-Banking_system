@@ -2,6 +2,7 @@ package net.javaguiedes.Banking_app.service;
 
 import net.javaguiedes.Banking_app.repository.EmployeeRepository;
 import org.springframework.stereotype.Service;
+import net.javaguiedes.Banking_app.entity.Employee;
 
 @Service
 public class EmployeeService {
@@ -20,5 +21,9 @@ public class EmployeeService {
 
     public void assignEmployee(String firstName, String lastName) {
         employeeRepository.assignEmployee(firstName, lastName);
+    }
+
+    public Employee findEmployee(String firstName, String lastName) {
+        return employeeRepository.findByFirstNameAndLastName(firstName, lastName);
     }
 }

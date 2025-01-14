@@ -285,7 +285,8 @@ public class MainController {
             Model model) {
         try {
             employeeService.assignEmployee(firstName, lastName);
-            model.addAttribute("success", "Employee successfully assigned.");
+            Employee assignedEmployee = employeeService.findEmployee(firstName, lastName);
+            model.addAttribute("employee", assignedEmployee);
         } catch (Exception e) {
             model.addAttribute("error", "Failed to assign employee: " + e.getMessage());
         }

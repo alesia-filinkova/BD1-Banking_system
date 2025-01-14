@@ -18,4 +18,6 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     void assignEmployee(
             @Param("p_first_name") String firstName,
             @Param("p_last_name") String lastName);
+
+    Employee findByFirstNameAndLastName(String firstName, String lastName);
 }
